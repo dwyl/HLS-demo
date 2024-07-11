@@ -98,7 +98,7 @@ The "/socket" route upgrade to a WebSocket connection after the token validation
 
 #### The "controller" module
 
-This module serves the files. Since we want to pass a "CSRFToken" to the Javascript, w use `EEX.eval_file` to parse the "index.html.heex" text.
+This module serves the files. Since we want to pass a "CSRFToken" to the Javascript, we use `EEX.eval_file` to parse the "index.html.heex" text.
 
 ```elixir
 def serve_homepage(conn, %{csrf_token: token}) do
@@ -109,8 +109,8 @@ end
 
 #### The "file watcher" module
 
-It essentially uses `FileSystem`. We declare which folder we want ot monitor, and the detected changes emit an event that we exploit to send to the caller process (the WebSocketHandler) a message.
-We monitor the creation of the "playlist.m3u8" file.
+It essentially uses `FileSystem`. We declare which folder we want to monitor. Whenever a change in the file system occurs in this folder, an event is emitted. We exploit it to send to the caller process (the WebSocketHandler) a message.
+More precisely, we monitor the creation of the "playlist.m3u8" file.
 
 ```mermaid
 graph LR
@@ -121,13 +121,13 @@ graph LR
 
 #### The "ffmpeg processor" module
 
-It runs `FFmpeg` as "kept alive" processes via `ExCmd`. This is crucial as we pipe the stdin to FFmpeg.
+It runs `FFmpeg` as "keep alive" processes via `ExCmd`. This is crucial as we pipe the stdin to FFmpeg.
 
 When we receive video chunks in binary form via the WebSocket (approx 300KB, depending on the height/width of your video HTMLElement), we pass it to FFmpeg to extract all the frames, at 30 fps.
 Each frame is saved into a file (approx 10kB).
 
-The other FFmpeg process is when we rebuild HSL video chunks from the transformed frames.
-FFmpeg will update a playlist and produce HSL segments. The FFmpeg process must not die in order not to append "#EXT-X-ENDLIST" at the end of the playlist.
+The other FFmpeg process is when we rebuild HLS video chunks from the transformed frames.
+FFmpeg will update a playlist and produce HLS segments. The FFmpeg process must not die in order not to append "#EXT-X-ENDLIST" at the end of the playlist.
 
 The general form of a FFmpeg command is:
 
@@ -193,7 +193,7 @@ We load `hls.js` from a CDN:
 
 We need to use `DOMContentLoaded`, so the "main.js" module starts with:
 
-```
+```js
 window.addEventListener('DOMContentLoaded', ()=> {...})
 ```
 
@@ -205,7 +205,7 @@ let socket = new WebSocket(
 );
 ```
 
-We use the WebRTC `getUserMedia` to display the built-in into a `<video>` element:
+We use the WebRTC API method `getUserMedia` to display the built-in into a `<video>` element:
 
 ```js
 let stream = await navigator.mediaDevices.getUserMedia({

@@ -1,4 +1,5 @@
 defmodule ImageProcessor do
+  
   def load_haar_cascade do
     haar_path =
       Path.join(

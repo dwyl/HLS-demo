@@ -1,4 +1,6 @@
 defmodule MyWebRouter do
+  @moduledoc false
+  
   use Plug.Router
 
   @session_options [
@@ -21,8 +23,7 @@ defmodule MyWebRouter do
     conn
     |> Plug.Conn.fetch_session()
     |> Plug.Conn.put_session(:csrf_token, token)
-
-    HomeController.serve_homepage(conn, %{csrf_token: token})
+    |> HomeController.serve_homepage( %{csrf_token: token})
   end
 
   get "/js/main.js" do
