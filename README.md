@@ -224,5 +224,3 @@ mediaRecorder.ondataavailable = async ({ data }) => {
 };
 mediaRecorder.start(1_000);
 ```
-
-The `hls.js` library is loaded via a CDN (in the "index.html.heex" file)
