@@ -26,8 +26,6 @@ defmodule FFmpegProcessor do
 			#{playlist}
 		)
 
-    # w(ffmpeg -loglevel warning  -i pipe:0  -framerate 30 -video_size 640x480 -y in/test_%004d.jpg)
-
     {:ok, pid_segment} =
       ExCmd.Process.start_link(ffmpeg_rebuild_cmd)
 

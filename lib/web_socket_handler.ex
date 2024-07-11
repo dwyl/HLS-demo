@@ -1,4 +1,5 @@
 defmodule WebSocketHandler do
+  @moduledoc false
   @behaviour WebSock
 
   @duration 5
@@ -9,7 +10,7 @@ defmodule WebSocketHandler do
 
   @impl true
   def init(_args) do
-    Logger.debug("INITIALIZED------")
+    Logger.debug("WS INITIALIZED------")
 
     {:ok, watcher_pid} = GenServer.start(FileWatcher, self())
 
