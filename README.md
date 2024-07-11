@@ -49,6 +49,15 @@ open http://localhost:4000 && mix run --no-halt
 
 :exclamation: You might encounter the error "segmentation fault". No further explanation on this.
 
+## Telemetry
+
+The process is able to handle "small" frames (640x480) at 30 fps. We use approx 300 I/O per second.
+The memory seems stable around 70MB during a 20 min test.
+
+![Screenshot 2024-07-11 at 13 27 44](https://github.com/dwyl/HLS-demo/assets/6793008/2227ea2c-2b51-4171-ab4a-414734134955)
+
+![Screenshot 2024-07-11 at 13 29 26](https://github.com/dwyl/HLS-demo/assets/6793008/4ade5976-4687-4d6c-8b0d-007547e4500e)
+
 ## Process flow
 
 The browser will ask to control your webcam.
