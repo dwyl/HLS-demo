@@ -49,7 +49,7 @@ open http://localhost:4000 && mix run --no-halt
 
 :exclamation: You might encounter the error "segmentation fault". No further explanation on this.
 
-## Process flows
+## Process flow
 
 The browser will ask to control your webcam.
 
