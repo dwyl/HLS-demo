@@ -1,4 +1,4 @@
-# HLS with Elixir
+# HLS with Elixir and Livebook
 
 ## What?
 
@@ -48,6 +48,8 @@ open http://localhost:4000 && mix run --no-halt
 :exclamation: You might encounter sometimes the error "segmentation fault". No further explanation on this.
 
 ### A livebook
+
+This gives a nice introduction on how to use the amazing `Kino.JS.Live` module.
 
 [![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fdwyl%2FHLS-demo%2Ftree%2Fmain%2Flib%2Fhls-demo.livemd)
 
