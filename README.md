@@ -35,7 +35,7 @@ We run `FFmpeg` as **"kept alive"** with `ExCmd.Process`. This is crucial for th
 
 We run a **file watcher process** with `file_system`. It will detect when `FFmpeg` will have built the HLS playlist and segments.
 
-## Run it
+## Run this
 
 From this directory, do:
 
@@ -45,9 +45,13 @@ open http://localhost:4000 && mix run --no-halt
 
 :exclamation: We need to have `FFmpeg` installed but also `fsevent` on MacOS or `inotify` for Linux on which depends `FlieSystem`.
 
-[TODO] A livebook
+:exclamation: You might encounter sometimes the error "segmentation fault". No further explanation on this.
 
-:exclamation: You might encounter the error "segmentation fault". No further explanation on this.
+### A livebook
+
+[![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fdwyl%2FHLS-demo%2Ftree%2Fmain%2Flib%2Fhls-demo.livemd)
+
+> The default directory to which all the files are saved is your home directory. All the files will be saved in 3 folders: "./priv/input", "./priv/output" and "./priv/hls". **You need to clean these folders**.
 
 ## Telemetry
 

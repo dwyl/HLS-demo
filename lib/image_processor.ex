@@ -1,4 +1,8 @@
 defmodule ImageProcessor do
+  @moduledoc """
+  Loads the Haar Cascade Classifier and detects faces in images
+  """
+  
   
   def load_haar_cascade do
     haar_path =
