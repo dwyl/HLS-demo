@@ -1,12 +1,27 @@
-# HLS with Elixir and Livebook
+# HTTP Live Streaming (HLS) with Elixir and Livebook
 
 ## What?
 
-We are going to use [HTTP Live Streaming](https://en.wikipedia.org/wiki/HTTP_Live_Streaming).
+We illustrate [HTTP Live Streaming](https://en.wikipedia.org/wiki/HTTP_Live_Streaming) using - <mark>[hls.js](https://github.com/video-dev/hls.js)</mark>.
+
+Because HLS is based on HTTP, any ordinary web server can originate the stream.
 
 `HLS` is a streaming protocol developed by Apple to deliver media content over the internet using HTTP. It breaks the overall stream into a sequence of small HTTP-based file downloads, each download loading one short chunk of an overall potentially unbounded transport stream. It uses a (unique) "playlist" file that describes the "segments" files to be played. It uses a dedicated library Once these files are available for reading (in the browser), the library <mark>`hls.js`</mark> will download the playlist and consequently segments to be played. It handles entirely the playback process. `Elixir` will serve these files.
 
 :exclamation: This protocole has **high latency**: you will experience up to 20 seconds delay.
+
+## How does HLS work?
+
+[Cloudfare source](https://www.cloudflare.com/learning/video/what-is-http-live-streaming/)
+
+**Server**: An HLS stream originates from a server where (in on-demand streaming) the media file is stored, or where (in live streaming) the stream is created. Because HLS is based on HTTP, any ordinary web server can originate the stream.
+
+Two main processes take place on the server:
+
+- Encoding: The video data is reformatted so that any device can recognize and interpret the data. HLS must use H.264 or H.265 encoding.
+- Segmenting: The video is divided up into segments a few seconds in length. The length of the segments can vary, although the default length is 6 seconds (until 2016 it was 10 seconds).
+
+## What are we doing?
 
 Our job here is to:
 
@@ -18,7 +33,31 @@ This relies heavily on <mark>[FFmpeg](https://ffmpeg.org/ffmpeg-formats.html#hls
 
 ## How?
 
-This is a `Plug` app which aims to be minimal. It illustrates HTTP Live Streaming - <mark>[HLS](https://github.com/video-dev/hls.js)</mark>.
+We propose two versions: a `Livebook` and an `Elixir/Plug` app.
+
+Why? The Livebook is an easy and self contained app but the code is slighlty different from the web app from whom you may borrow the code.
+
+:exclamation: We need to have `FFmpeg` installed but also `fsevent` on MacOS or `inotify` for Linux on which depends `FlieSystem`.
+
+:exclamation: You might encounter sometimes the error "segmentation fault". No further explanation on this.
+
+### A livebook
+
+This gives a nice introduction on how to use the amazing `Kino.JS.Live` module.
+
+[![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fdwyl%2FHLS-demo%2Fblob%2Fmain%2Flib%2Fhls-demo.livemd)
+
+> The default directory to which all the files are saved is your home directory. All the files will be saved in 3 folders: "./priv/input", "./priv/output" and "./priv/hls". **You need to clean these folders**.
+
+### A web app
+
+To run the web app, you fork the repo:
+
+```elixir
+open http://localhost:4000 && mix run --no-halt
+```
+
+The web app is minimal in the sense that it is is a `Plug` app. 
 
 We run a tpc listener on port 4000 with `Bandit` to communicate with the browser.
 
@@ -34,26 +73,6 @@ We have a `Plug` router that:
 We run `FFmpeg` as **"kept alive"** with `ExCmd.Process`. This is crucial for the process.
 
 We run a **file watcher process** with `file_system`. It will detect when `FFmpeg` will have built the HLS playlist and segments.
-
-## Run this
-
-From this directory, do:
-
-```elixir
-open http://localhost:4000 && mix run --no-halt
-```
-
-:exclamation: We need to have `FFmpeg` installed but also `fsevent` on MacOS or `inotify` for Linux on which depends `FlieSystem`.
-
-:exclamation: You might encounter sometimes the error "segmentation fault". No further explanation on this.
-
-### A livebook
-
-This gives a nice introduction on how to use the amazing `Kino.JS.Live` module.
-
-[![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fdwyl%2FHLS-demo%2Fblob%2Fmain%2Flib%2Fhls-demo.livemd)
-
-> The default directory to which all the files are saved is your home directory. All the files will be saved in 3 folders: "./priv/input", "./priv/output" and "./priv/hls". **You need to clean these folders**.
 
 ## Telemetry
 
