@@ -51,7 +51,7 @@ open http://localhost:4000 && mix run --no-halt
 
 This gives a nice introduction on how to use the amazing `Kino.JS.Live` module.
 
-[![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fdwyl%2FHLS-demo%2Ftree%2Fmain%2Flib%2Fhls-demo.livemd)
+[![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fdwyl%2FHLS-demo%2Fblob%2Fmain%2Flib%2Fhls-demo.livemd)
 
 > The default directory to which all the files are saved is your home directory. All the files will be saved in 3 folders: "./priv/input", "./priv/output" and "./priv/hls". **You need to clean these folders**.
 
