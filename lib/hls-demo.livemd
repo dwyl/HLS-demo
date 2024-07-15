@@ -9,7 +9,8 @@ Mix.install([
   {:plug_crypto, "~> 2.1"},
   {:bandit, "~> 1.5"},
   {:kino, "~> 0.13.2"},
-  {:corsica, "~> 2.1"}
+  {:corsica, "~> 2.1"},
+  {:req, "~> 0.5.2"}
 ])
 ```
 
