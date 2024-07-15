@@ -28,13 +28,13 @@ defmodule WebServer do
   plug :dispatch
 
   # http://localhost:58331
-  
+
   get "/hls/:file" do
     IO.puts "endpoint reached----"
     %{"file" => file} = conn.params
     data = File.read!("./priv/hls/"<>file)
     Plug.Conn.send_resp(conn, 200, data)
-  end 
+  end
 end
 
 Bandit.start_link(plug: WebServer, port: 4001)
@@ -52,37 +52,37 @@ The second one will build HLS segments and the playlist.
 
 defmodule FFmpegProcessor do
   @moduledoc false
-  
+
   @ffmpeg System.find_executable("ffmpeg") || "/opt/homebrew/bin/ffmpeg"
 
   def start(frame_rate, resolution, duration) do
     frame_pattern = "./priv/input/test_%05d.jpg"
 
-    build_frames = 
-      ~w(#{@ffmpeg}  -loglevel debug 
-      -i pipe:0 -framerate #{frame_rate} 
-      -video_size #{resolution} 
-      -thread_type slice 
+    build_frames =
+      ~w(#{@ffmpeg}  -loglevel debug
+      -i pipe:0 -framerate #{frame_rate}
+      -video_size #{resolution}
+      -thread_type slice
       #{frame_pattern}
       )
-    
+
 
     {:ok, pid_capture} =
       ExCmd.Process.start_link(build_frames)
 
     playlist = Path.join("./priv/hls", "playlist.m3u8")
     segment = Path.join("./priv/hls", "segment_%03d.ts")
-    ffmpeg_rebuild_cmd = 
-      ~w(#{@ffmpeg} -loglevel info 
+    ffmpeg_rebuild_cmd =
+      ~w(#{@ffmpeg} -loglevel info
 			-f image2pipe -framerate #{frame_rate}
-			-i pipe:0 -c:v libx264 
-			-preset veryfast 
-			-f hls 
+			-i pipe:0 -c:v libx264
+			-preset veryfast
+			-f hls
 			-hls_time #{duration}
-			-hls_list_size 4 
+			-hls_list_size 4
 			-hls_playlist_type event
-			-hls_flags append_list 
-			-hls_segment_filename #{segment} 
+			-hls_flags append_list
+			-hls_segment_filename #{segment}
 			#{playlist}
   		)
 
@@ -143,7 +143,7 @@ We read the files and build new files.
 
 ```elixir
 defmodule ImageProcessor do
-  
+
   def load_haar_cascade do
     haar_path =
       Path.join(
@@ -197,6 +197,22 @@ You load external libraries with `ctx.importJS`.
 
 > We send **binary payloads** from the browser to the process.
 
+A helper module
+
+```elixir
+defmodule Assets do
+  def fetch_js do
+    github_js_url = "https://raw.githubusercontent.com/dwyl/hls-demo/main/lib/assets/index.js"
+    Req.get!(github_js_url).body
+  end
+
+  def fetch_html do
+    github_html_url = "https://raw.githubusercontent.com/dwyl/hls-demo/main/lib/assets/index.html"
+    Req.get!(github_html_url).body
+  end
+end
+```
+
 ```elixir
 defmodule HlsLive do
   use Kino.JS
@@ -206,130 +222,25 @@ defmodule HlsLive do
   @frame_rate 30
   @resolution "640x480"
 
-  @html """
-  <div id="elt">
-    <div style="display: flex; justify-content: flex-start; align-items: center; gap: 20px; padding: 10px; margin-left: 40px;">
-      <button type="button" id="file-proc" style="padding: 15px 30px; font-size: 18px;">START</button>
-      <br />
-      <button type="button" id="stop" style="padding: 15px 30px; font-size: 18px;">STOP</button>
-    </div>
-    <br />
-    <figure>
-      <video
-        id="source"
-        width="640"
-        height="480"
-        muted
-        autoplay
-        playsinline
-      ></video>
-      <figcaption>Source</figcaption>
-    </figure>
-    <br />
-    <div style="margin-left: 40px; display: flex; justify-content: center;">
-      <p id="spinner"><svg width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_ajPY{transform-origin:center;animation:spinner_AtaB .75s infinite linear}@keyframes spinner_AtaB{100%{transform:rotate(360deg)}}</style><path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/><path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" class="spinner_ajPY"/></svg></p>
-    </div>
-    <figure>
-      <video
-        id="output"
-        width="640"
-        height="480"
-        muted
-        autoplay
-        playsinline
-        controls
-      ></video>
-      <figcaption>Modified image</figcaption>
-    </figure>
-  </div>
-  """
+  @html Assets.fetch_html()
 
-  def new(), do: Kino.JS.Live.new(__MODULE__, @html)
+  def run(), do: Kino.JS.Live.new(__MODULE__, @html)
 
   asset "main.js" do
-    """
-    export function init(ctx, html) {
-      ctx.importJS("https://cdn.jsdelivr.net/npm/hls.js@latest")
-      ctx.root.innerHTML = html;
-
-      console.log("loaded")
-    
-      let video1 = document.getElementById("source"),
-        video2 = document.getElementById("output"),
-        spinner = document.getElementById("spinner"),
-        fileProc = document.getElementById("file-proc"),
-        stop = document.getElementById("stop"),
-        isReady = false;
-
-      navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480 },
-        audio: false,
-      }). then((stream) => {
-        video1.srcObject = stream;
-        spinner.style.visibility = "hidden";
-        video2.style.visibility = "hidden";
-      
-        const options = { mimeType: "video/webm; codecs=vp8" };
-        let mediaRecorder = new MediaRecorder(stream);
-      
-        mediaRecorder.ondataavailable = async ({ data }) => {
-          if (!isReady) return;
-          if (data.size > 0) {
-            console.log(data.size);
-            const buffer = await data.arrayBuffer();
-            ctx.pushEvent("chunk", [{}, buffer])
-          }
-        };
-        fileProc.onclick = () => {
-          isReady = true;
-          if (mediaRecorder.state == "inactive") mediaRecorder.start(1_000);
-          spinner.style.visibility = "visible";
-        };
-      
-        stop.onclick = () => {
-          mediaRecorder.stop();
-          ctx.pushEvent("stop", {})
-        };
-        
-        ctx.handleEvent("playlist_ready", handleHls)
-        function handleHls() {
-          spinner.style.visibility = "hidden";
-          video2.style.visibility = "visible";
-          let hls = new Hls();
-          if (Hls.isSupported()) {
-            hls.loadSource("http://localhost:4001/hls/playlist.m3u8");
-            hls.attachMedia(video2);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-              video2.play();
-            });
-            hls.on(Hls.Events.ERROR, (event, data) => {
-              console.log(event, data);
-            });
-            // Safari can play this natively
-          } else if (video2.canPlayType("application/vnd.apple.mpegurl")) {
-            video2.src = "/output/playlist.m3u8";
-            video2.addEventListener("loadedmetadata", () => {
-              video2.play();
-            });
-          }
-        }
-      })
-    }
-    
-    """
+    Assets.fetch_js()
   end
 
   @impl true
   def init(html, ctx) do
     ["./priv/input", "./priv/output", "./priv/hls"] |> Enum.each(&File.mkdir_p/1)
-    
-    {:ok, watcher_pid} = 
+
+    {:ok, watcher_pid} =
       GenServer.start(FileWatcher, self())
 
     {pid_capture, pid_segment} =
       FFmpegProcessor.start(@frame_rate, @resolution, @duration)
-    
-    ctx = 
+
+    ctx =
       ctx
       |> assign(%{
         html: html,
@@ -357,7 +268,7 @@ defmodule HlsLive do
   def handle_event("stop", _, ctx) do
     {:noreply, ctx}
   end
-  
+
   def handle_event("chunk", {:binary,_, buffer}, ctx) do
     %{pid_capture: pid_capture, chunk_id: chunk_id} = ctx.assigns
     IO.puts("received data ---------------#{ctx.assigns.chunk_id}")
@@ -371,7 +282,7 @@ defmodule HlsLive do
   end
 
   # received from the server--------------
-  
+
   @impl true
   def handle_info(:ffmpeg_process, ctx) do
     %{queue: queue, map_list: map_list} = ctx.assigns
@@ -412,7 +323,7 @@ defmodule HlsLive do
           |> Stream.run()
 
         send(self(), :process_queue)
-        
+
         {:noreply, assign(ctx, queue: new_queue)}
 
       {:empty, _} ->
@@ -472,5 +383,5 @@ Click on "start".
 After 15s, you should see below a second video element which streams the transformed feed of the webcam with face detection. Et voilà!.
 
 ```elixir
-HlsLive.new()
+HlsLive.run()
 ```
