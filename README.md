@@ -4,7 +4,10 @@
 
 We illustrate [HTTP Live Streaming](https://en.wikipedia.org/wiki/HTTP_Live_Streaming) using - <mark>[hls.js](https://github.com/video-dev/hls.js)</mark>.
 
+<img width="311" alt="Screenshot 2024-08-09 at 11 55 47" src="https://github.com/user-attachments/assets/3d08f4cc-34b3-4cdd-9c0c-2ec503ecb093">
+
 Because HLS is based on HTTP, any ordinary web server can originate the stream.
+
 
 `HLS` is a streaming protocol developed by Apple to deliver media content over the internet using HTTP. It breaks the overall stream into a sequence of small HTTP-based file downloads, each download loading one short chunk of an overall potentially unbounded transport stream. It uses a (unique) "playlist" file that describes the "segments" files to be played. It uses a dedicated library Once these files are available for reading (in the browser), the library <mark>`hls.js`</mark> will download the playlist and consequently segments to be played. It handles entirely the playback process. `Elixir` will serve these files.
 
